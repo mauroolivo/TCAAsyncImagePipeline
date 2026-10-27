@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		348AC756309145090036ED90 /* TCA_MIGRATION_WORKLOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TCA_MIGRATION_WORKLOG.md; sourceTree = "<group>"; };
 		34C77ED23090EDE900032705 /* TCAAsyncImagePipeline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TCAAsyncImagePipeline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34C77EE03090EE7C00032705 /* _UI_MATTERS_VISION_MISSION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = _UI_MATTERS_VISION_MISSION.md; sourceTree = "<group>"; };
 		34C77EE13090EE7C00032705 /* TCA_MIGRATION_ARTICLE_OUTLINE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TCA_MIGRATION_ARTICLE_OUTLINE.md; sourceTree = "<group>"; };
@@ -34,6 +35,7 @@
 			children = (
 				34C77EE03090EE7C00032705 /* _UI_MATTERS_VISION_MISSION.md */,
 				34C77EE13090EE7C00032705 /* TCA_MIGRATION_ARTICLE_OUTLINE.md */,
+				348AC756309145090036ED90 /* TCA_MIGRATION_WORKLOG.md */,
 				34C77ED43090EDE900032705 /* TCAAsyncImagePipeline */,
 				34C77ED33090EDE900032705 /* Products */,
 			);
