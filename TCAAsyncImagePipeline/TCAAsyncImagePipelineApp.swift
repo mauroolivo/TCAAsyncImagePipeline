@@ -1,12 +1,17 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 @main
 struct TCAAsyncImagePipelineApp: App {
+    private let store = Store(initialState: AppFeature.State()) {
+        AppFeature()
+    }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppView(store: store)
                 .task {
                     await Phase0BaselineRunner.runIfEnabled()
                 }
