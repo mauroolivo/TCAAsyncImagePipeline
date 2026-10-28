@@ -6,12 +6,13 @@ struct AppFeature: Reducer {
         var pipeline = ImagePipelineFeature.State()
     }
 
+    @CasePathable
     enum Action {
         case pipeline(ImagePipelineFeature.Action)
     }
 
     var body: some Reducer<State, Action> {
-        Scope(state: \.pipeline, action: /Action.pipeline) {
+        Scope(state: \.pipeline, action: \.pipeline) {
             ImagePipelineFeature()
         }
     }

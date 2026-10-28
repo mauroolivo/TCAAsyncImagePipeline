@@ -32,7 +32,7 @@ struct ImagePipelineView: View {
                         .font(.headline)
 
                     Button(action: {
-                        store.send(.pipeline(.runTapped(kind)))
+                        store.send(experimentAction(kind, .runTapped))
                     }) {
                         Label(kind.actionTitle, systemImage: "play.circle.fill")
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -42,7 +42,7 @@ struct ImagePipelineView: View {
 
                     HStack(spacing: 12) {
                         Button(action: {
-                            store.send(.pipeline(.resetTapped(kind)))
+                            store.send(experimentAction(kind, .resetTapped))
                         }) {
                             Label("Reset", systemImage: "arrow.clockwise")
                         }
@@ -50,7 +50,7 @@ struct ImagePipelineView: View {
 
                         if model.isRunning {
                             Button(action: {
-                                store.send(.pipeline(.cancelTapped(kind)))
+                                store.send(experimentAction(kind, .cancelTapped))
                             }) {
                                 Label("Cancel", systemImage: "xmark.circle")
                             }
@@ -81,7 +81,7 @@ struct ImagePipelineView: View {
         }
         .navigationTitle("Pipeline")
         .task {
-            _ = store.send(.pipeline(.onAppear(kind)))
+            _ = store.send(experimentAction(kind, .onAppear))
         }
     }
 
@@ -141,7 +141,7 @@ struct ImagePipelineView: View {
         }
     }
 
-    private func galleryAndLog(model: ImagePipelineFeature.ExperimentState) -> some View {
+    private func galleryAndLog(model: ExperimentViewState) -> some View {
         VStack(spacing: 0) {
             if !model.gallery.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
@@ -328,18 +328,88 @@ struct ImagePipelineView: View {
 }
 
 private extension ImagePipelineView {
-    func experimentState(_ kind: ImagePipelineFeature.ExperimentKind) -> ImagePipelineFeature.ExperimentState {
+    enum ExperimentIntent {
+        case onAppear
+        case runTapped
+        case resetTapped
+        case cancelTapped
+    }
+
+    func experimentAction(
+        _ kind: ImagePipelineFeature.ExperimentKind,
+        _ intent: ExperimentIntent
+    ) -> AppFeature.Action {
         switch kind {
         case .duplicate:
-            return store.pipeline.duplicate
+            return .pipeline(.duplicate(mapDuplicateIntent(intent)))
         case .bounded:
-            return store.pipeline.bounded
+            return .pipeline(.bounded(mapBoundedIntent(intent)))
         case .retry:
-            return store.pipeline.retry
+            return .pipeline(.retry(mapRetryIntent(intent)))
         case .cancellation:
-            return store.pipeline.cancellation
+            return .pipeline(.cancellation(mapCancellationIntent(intent)))
         }
     }
+
+    func experimentState(_ kind: ImagePipelineFeature.ExperimentKind) -> ExperimentViewState {
+        switch kind {
+        case .duplicate:
+            let state = store.pipeline.duplicate
+            return ExperimentViewState(events: state.events, gallery: state.gallery, isRunning: state.isRunning, metrics: state.metrics)
+        case .bounded:
+            let state = store.pipeline.bounded
+            return ExperimentViewState(events: state.events, gallery: state.gallery, isRunning: state.isRunning, metrics: state.metrics)
+        case .retry:
+            let state = store.pipeline.retry
+            return ExperimentViewState(events: state.events, gallery: state.gallery, isRunning: state.isRunning, metrics: state.metrics)
+        case .cancellation:
+            let state = store.pipeline.cancellation
+            return ExperimentViewState(events: state.events, gallery: state.gallery, isRunning: state.isRunning, metrics: state.metrics)
+        }
+    }
+
+    func mapDuplicateIntent(_ intent: ExperimentIntent) -> DuplicateRequestsFeature.Action {
+        switch intent {
+        case .onAppear: return .onAppear
+        case .runTapped: return .runTapped
+        case .resetTapped: return .resetTapped
+        case .cancelTapped: return .cancelTapped
+        }
+    }
+
+    func mapBoundedIntent(_ intent: ExperimentIntent) -> BoundedPrefetchFeature.Action {
+        switch intent {
+        case .onAppear: return .onAppear
+        case .runTapped: return .runTapped
+        case .resetTapped: return .resetTapped
+        case .cancelTapped: return .cancelTapped
+        }
+    }
+
+    func mapRetryIntent(_ intent: ExperimentIntent) -> FailureAndRetryFeature.Action {
+        switch intent {
+        case .onAppear: return .onAppear
+        case .runTapped: return .runTapped
+        case .resetTapped: return .resetTapped
+        case .cancelTapped: return .cancelTapped
+        }
+    }
+
+    func mapCancellationIntent(_ intent: ExperimentIntent) -> CancellationFeature.Action {
+        switch intent {
+        case .onAppear: return .onAppear
+        case .runTapped: return .runTapped
+        case .resetTapped: return .resetTapped
+        case .cancelTapped: return .cancelTapped
+        }
+    }
+}
+
+private struct ExperimentViewState {
+    let events: [LogEvent]
+    let gallery: [GalleryItem]
+    let isRunning: Bool
+    let metrics: PipelineMetrics?
 }
 
 private extension View {
