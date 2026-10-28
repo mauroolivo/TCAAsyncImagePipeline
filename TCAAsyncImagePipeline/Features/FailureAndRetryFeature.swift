@@ -3,9 +3,10 @@ import Foundation
 
 @Reducer
 struct FailureAndRetryFeature {
+    @Dependency(\.imagePipelineClient) var imagePipelineClient
+
     @ObservableState
     struct State {
-        let pipeline: AsyncImagePipeline
         var events: [LogEvent] = []
         var gallery: [GalleryItem] = []
         var isRunning = false
@@ -13,6 +14,7 @@ struct FailureAndRetryFeature {
         var didInstallLogHandler = false
     }
 
+    @CasePathable
     enum Action {
         case onAppear
         case runTapped
@@ -31,12 +33,12 @@ struct FailureAndRetryFeature {
                 guard !state.didInstallLogHandler else { return .none }
                 state.didInstallLogHandler = true
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .run { send in
                     await send(.appendEvent(LogEvent(timestamp: Date(), message: "GalleryModel initialized, pipeline ready", level: .info)))
 
                     let (stream, continuation) = AsyncStream<LogEvent>.makeStream()
-                    await pipeline.setLogHandler { event in
+                    await client.setLogHandler(.retry) { event in
                         continuation.yield(event)
                     }
 
@@ -51,8 +53,8 @@ struct FailureAndRetryFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
-                return runFailureRetryExperiment(pipeline: pipeline)
+                let client = imagePipelineClient
+                return runFailureRetryExperiment(client: client)
                     .cancellable(id: "retry_experiment", cancelInFlight: true)
 
             case .resetTapped:
@@ -61,10 +63,10 @@ struct FailureAndRetryFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .merge(
                     .cancel(id: "retry_experiment"),
-                    .run { _ in await pipeline.reset() }
+                    .run { _ in await client.reset(.retry) }
                 )
 
             case .cancelTapped:
@@ -93,23 +95,23 @@ struct FailureAndRetryFeature {
         }
     }
 
-    private func runFailureRetryExperiment(pipeline: AsyncImagePipeline) -> Effect<Action> {
+    private func runFailureRetryExperiment(client: ImagePipelineClient) -> Effect<Action> {
         .run { send in
             let url = NetworkLoader.imageURLs[2]
-            await pipeline.simulateFailure(for: url)
+            await client.simulateFailure(.retry, url)
 
-            let first = await pipeline.fetch(url: url)
+            let first = await client.fetch(.retry, url)
             await send(.appendEvent(LogEvent(timestamp: Date(), message: "Attempt 1: \(first.source.description)", level: .warning)))
 
             try? await Task.sleep(nanoseconds: 500_000_000)
-            let second = await pipeline.fetch(url: url)
+            let second = await client.fetch(.retry, url)
             await send(.appendEvent(LogEvent(timestamp: Date(), message: "Attempt 2: \(second.source.description)", level: second.image == nil ? .error : .success)))
 
             if let image = second.image {
                 await send(.appendGalleryItem(GalleryItem(image: image)))
             }
 
-            await send(.setMetrics(await pipeline.getMetrics()))
+            await send(.setMetrics(await client.getMetrics(.retry)))
             await send(.setRunning(false))
         }
     }

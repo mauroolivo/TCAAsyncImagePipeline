@@ -3,9 +3,10 @@ import Foundation
 
 @Reducer
 struct CancellationFeature {
+    @Dependency(\.imagePipelineClient) var imagePipelineClient
+
     @ObservableState
     struct State {
-        let pipeline: AsyncImagePipeline
         var events: [LogEvent] = []
         var gallery: [GalleryItem] = []
         var isRunning = false
@@ -13,6 +14,7 @@ struct CancellationFeature {
         var didInstallLogHandler = false
     }
 
+    @CasePathable
     enum Action {
         case onAppear
         case runTapped
@@ -31,12 +33,12 @@ struct CancellationFeature {
                 guard !state.didInstallLogHandler else { return .none }
                 state.didInstallLogHandler = true
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .run { send in
                     await send(.appendEvent(LogEvent(timestamp: Date(), message: "GalleryModel initialized, pipeline ready", level: .info)))
 
                     let (stream, continuation) = AsyncStream<LogEvent>.makeStream()
-                    await pipeline.setLogHandler { event in
+                    await client.setLogHandler(.cancellation) { event in
                         continuation.yield(event)
                     }
 
@@ -51,8 +53,8 @@ struct CancellationFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
-                return runCancellationExperiment(pipeline: pipeline)
+                let client = imagePipelineClient
+                return runCancellationExperiment(client: client)
                     .cancellable(id: "cancellation_experiment", cancelInFlight: true)
 
             case .resetTapped:
@@ -61,10 +63,10 @@ struct CancellationFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .merge(
                     .cancel(id: "cancellation_experiment"),
-                    .run { _ in await pipeline.reset() }
+                    .run { _ in await client.reset(.cancellation) }
                 )
 
             case .cancelTapped:
@@ -93,12 +95,12 @@ struct CancellationFeature {
         }
     }
 
-    private func runCancellationExperiment(pipeline: AsyncImagePipeline) -> Effect<Action> {
+    private func runCancellationExperiment(client: ImagePipelineClient) -> Effect<Action> {
         .run { send in
             let url = NetworkLoader.imageURLs[3]
-            let taskA = Task { await pipeline.fetch(url: url) }
+            let taskA = Task { await client.fetch(.cancellation, url) }
             try? await Task.sleep(nanoseconds: 100_000_000)
-            let taskB = Task { await pipeline.fetch(url: url) }
+            let taskB = Task { await client.fetch(.cancellation, url) }
 
             try? await Task.sleep(nanoseconds: 150_000_000)
             taskA.cancel()
@@ -109,7 +111,7 @@ struct CancellationFeature {
                 await send(.appendGalleryItem(GalleryItem(image: image)))
             }
 
-            await send(.setMetrics(await pipeline.getMetrics()))
+            await send(.setMetrics(await client.getMetrics(.cancellation)))
             await send(.setRunning(false))
         }
     }

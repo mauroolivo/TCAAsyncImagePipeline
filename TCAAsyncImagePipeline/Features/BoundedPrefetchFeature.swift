@@ -3,9 +3,10 @@ import Foundation
 
 @Reducer
 struct BoundedPrefetchFeature {
+    @Dependency(\.imagePipelineClient) var imagePipelineClient
+
     @ObservableState
     struct State {
-        let pipeline: AsyncImagePipeline
         var events: [LogEvent] = []
         var gallery: [GalleryItem] = []
         var isRunning = false
@@ -13,6 +14,7 @@ struct BoundedPrefetchFeature {
         var didInstallLogHandler = false
     }
 
+    @CasePathable
     enum Action {
         case onAppear
         case runTapped
@@ -31,12 +33,12 @@ struct BoundedPrefetchFeature {
                 guard !state.didInstallLogHandler else { return .none }
                 state.didInstallLogHandler = true
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .run { send in
                     await send(.appendEvent(LogEvent(timestamp: Date(), message: "GalleryModel initialized, pipeline ready", level: .info)))
 
                     let (stream, continuation) = AsyncStream<LogEvent>.makeStream()
-                    await pipeline.setLogHandler { event in
+                    await client.setLogHandler(.bounded) { event in
                         continuation.yield(event)
                     }
 
@@ -51,8 +53,8 @@ struct BoundedPrefetchFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
-                return runBoundedPrefetchExperiment(pipeline: pipeline)
+                let client = imagePipelineClient
+                return runBoundedPrefetchExperiment(client: client)
                     .cancellable(id: "bounded_experiment", cancelInFlight: true)
 
             case .resetTapped:
@@ -61,10 +63,10 @@ struct BoundedPrefetchFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .merge(
                     .cancel(id: "bounded_experiment"),
-                    .run { _ in await pipeline.reset() }
+                    .run { _ in await client.reset(.bounded) }
                 )
 
             case .cancelTapped:
@@ -93,11 +95,11 @@ struct BoundedPrefetchFeature {
         }
     }
 
-    private func runBoundedPrefetchExperiment(pipeline: AsyncImagePipeline) -> Effect<Action> {
+    private func runBoundedPrefetchExperiment(client: ImagePipelineClient) -> Effect<Action> {
         .run { send in
             await send(.appendEvent(LogEvent(timestamp: Date(), message: "Starting bounded prefetch experiment", level: .info)))
             let urls = Array(NetworkLoader.imageURLs.prefix(4))
-            let fetches = await pipeline.fetchBatch(urls: urls, maxConcurrent: 2)
+            let fetches = await client.fetchBatch(.bounded, urls, 2)
 
             for fetch in fetches {
                 let hasImage = fetch.image != nil
@@ -107,7 +109,7 @@ struct BoundedPrefetchFeature {
                 }
             }
 
-            await send(.setMetrics(await pipeline.getMetrics()))
+            await send(.setMetrics(await client.getMetrics(.bounded)))
             await send(.setRunning(false))
         }
     }

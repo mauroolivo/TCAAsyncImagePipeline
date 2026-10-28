@@ -1,6 +1,7 @@
 import ComposableArchitecture
 
-struct AppFeature: Reducer {
+@Reducer
+struct AppFeature {
     @ObservableState
     struct State {
         var pipeline = ImagePipelineFeature.State()

@@ -3,9 +3,10 @@ import Foundation
 
 @Reducer
 struct DuplicateRequestsFeature {
+    @Dependency(\.imagePipelineClient) var imagePipelineClient
+
     @ObservableState
     struct State {
-        let pipeline: AsyncImagePipeline
         var events: [LogEvent] = []
         var gallery: [GalleryItem] = []
         var isRunning = false
@@ -13,6 +14,7 @@ struct DuplicateRequestsFeature {
         var didInstallLogHandler = false
     }
 
+    @CasePathable
     enum Action {
         case onAppear
         case runTapped
@@ -31,12 +33,12 @@ struct DuplicateRequestsFeature {
                 guard !state.didInstallLogHandler else { return .none }
                 state.didInstallLogHandler = true
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .run { send in
                     await send(.appendEvent(LogEvent(timestamp: Date(), message: "GalleryModel initialized, pipeline ready", level: .info)))
 
                     let (stream, continuation) = AsyncStream<LogEvent>.makeStream()
-                    await pipeline.setLogHandler { event in
+                    await client.setLogHandler(.duplicate) { event in
                         continuation.yield(event)
                     }
 
@@ -51,8 +53,8 @@ struct DuplicateRequestsFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
-                return runDuplicateExperiment(pipeline: pipeline)
+                let client = imagePipelineClient
+                return runDuplicateExperiment(client: client)
                     .cancellable(id: "duplicate_experiment", cancelInFlight: true)
 
             case .resetTapped:
@@ -61,10 +63,10 @@ struct DuplicateRequestsFeature {
                 state.gallery.removeAll()
                 state.metrics = nil
 
-                let pipeline = state.pipeline
+                let client = imagePipelineClient
                 return .merge(
                     .cancel(id: "duplicate_experiment"),
-                    .run { _ in await pipeline.reset() }
+                    .run { _ in await client.reset(.duplicate) }
                 )
 
             case .cancelTapped:
@@ -93,14 +95,14 @@ struct DuplicateRequestsFeature {
         }
     }
 
-    private func runDuplicateExperiment(pipeline: AsyncImagePipeline) -> Effect<Action> {
+    private func runDuplicateExperiment(client: ImagePipelineClient) -> Effect<Action> {
         .run { send in
             await send(.appendEvent(LogEvent(timestamp: Date(), message: "=== DUPLICATE REQUEST EXPERIMENT START ===", level: .info)))
             let urls: [URL] = [NetworkLoader.imageURLs[0], NetworkLoader.imageURLs[1], NetworkLoader.imageURLs[0]]
 
             await withTaskGroup(of: PipelineFetch.self) { group in
                 for url in urls {
-                    group.addTask { await pipeline.fetch(url: url) }
+                    group.addTask { await client.fetch(.duplicate, url) }
                 }
                 for await result in group {
                     let hasImage = result.image != nil
@@ -111,7 +113,7 @@ struct DuplicateRequestsFeature {
                 }
             }
 
-            let metrics = await pipeline.getMetrics()
+            let metrics = await client.getMetrics(.duplicate)
             await send(.setMetrics(metrics))
             await send(.setRunning(false))
         }

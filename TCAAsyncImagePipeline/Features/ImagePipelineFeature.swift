@@ -11,14 +11,14 @@ struct ImagePipelineFeature {
         var cancellation: CancellationFeature.State
 
         init() {
-            let pipelines = PipelineRegistry()
-            duplicate = DuplicateRequestsFeature.State(pipeline: pipelines.pipeline(for: .duplicate))
-            bounded = BoundedPrefetchFeature.State(pipeline: pipelines.pipeline(for: .bounded))
-            retry = FailureAndRetryFeature.State(pipeline: pipelines.pipeline(for: .retry))
-            cancellation = CancellationFeature.State(pipeline: pipelines.pipeline(for: .cancellation))
+            duplicate = DuplicateRequestsFeature.State()
+            bounded = BoundedPrefetchFeature.State()
+            retry = FailureAndRetryFeature.State()
+            cancellation = CancellationFeature.State()
         }
     }
 
+    @CasePathable
     enum Action {
         case duplicate(DuplicateRequestsFeature.Action)
         case bounded(BoundedPrefetchFeature.Action)
@@ -96,18 +96,3 @@ extension ImagePipelineFeature {
     }
 }
 
-private struct PipelineRegistry: Sendable {
-    private let duplicate = AsyncImagePipeline()
-    private let bounded = AsyncImagePipeline()
-    private let retry = AsyncImagePipeline()
-    private let cancellation = AsyncImagePipeline()
-
-    func pipeline(for kind: ImagePipelineFeature.ExperimentKind) -> AsyncImagePipeline {
-        switch kind {
-        case .duplicate: return duplicate
-        case .bounded: return bounded
-        case .retry: return retry
-        case .cancellation: return cancellation
-        }
-    }
-}

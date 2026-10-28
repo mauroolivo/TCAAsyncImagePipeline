@@ -10,17 +10,33 @@
 		A1B2C3D4E5F60718293A4B5C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F60718293A4B5B /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		44AA00013092000100000008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34C77ECA3090EDE900032705 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 34C77ED13090EDE900032705;
+			remoteInfo = TCAAsyncImagePipeline;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		348AC756309145090036ED90 /* TCA_MIGRATION_WORKLOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TCA_MIGRATION_WORKLOG.md; sourceTree = "<group>"; };
 		34C77ED23090EDE900032705 /* TCAAsyncImagePipeline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TCAAsyncImagePipeline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34C77EE03090EE7C00032705 /* _UI_MATTERS_VISION_MISSION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = _UI_MATTERS_VISION_MISSION.md; sourceTree = "<group>"; };
 		34C77EE13090EE7C00032705 /* TCA_MIGRATION_ARTICLE_OUTLINE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TCA_MIGRATION_ARTICLE_OUTLINE.md; sourceTree = "<group>"; };
+		44AA00013092000100000002 /* TCAAsyncImagePipelineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TCAAsyncImagePipelineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		34C77ED43090EDE900032705 /* TCAAsyncImagePipeline */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TCAAsyncImagePipeline;
+			sourceTree = "<group>";
+		};
+		44AA00013092000100000003 /* TCAAsyncImagePipelineTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TCAAsyncImagePipelineTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -30,6 +46,11 @@
 			isa = PBXFrameworksBuildPhase;
 			files = (
 				A1B2C3D4E5F60718293A4B5C /* ComposableArchitecture in Frameworks */,
+			);
+		};
+		44AA00013092000100000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -42,6 +63,7 @@
 				34C77EE13090EE7C00032705 /* TCA_MIGRATION_ARTICLE_OUTLINE.md */,
 				348AC756309145090036ED90 /* TCA_MIGRATION_WORKLOG.md */,
 				34C77ED43090EDE900032705 /* TCAAsyncImagePipeline */,
+				44AA00013092000100000003 /* TCAAsyncImagePipelineTests */,
 				34C77ED33090EDE900032705 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				34C77ED23090EDE900032705 /* TCAAsyncImagePipeline.app */,
+				44AA00013092000100000002 /* TCAAsyncImagePipelineTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -78,6 +101,29 @@
 			productReference = 34C77ED23090EDE900032705 /* TCAAsyncImagePipeline.app */;
 			productType = "com.apple.product-type.application";
 		};
+		44AA00013092000100000004 /* TCAAsyncImagePipelineTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 44AA0001309200010000000C /* Build configuration list for PBXNativeTarget "TCAAsyncImagePipelineTests" */;
+			buildPhases = (
+				44AA00013092000100000007 /* Sources */,
+				44AA00013092000100000005 /* Frameworks */,
+				44AA00013092000100000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				44AA00013092000100000009 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				44AA00013092000100000003 /* TCAAsyncImagePipelineTests */,
+			);
+			name = TCAAsyncImagePipelineTests;
+			packageProductDependencies = (
+			);
+			productName = TCAAsyncImagePipelineTests;
+			productReference = 44AA00013092000100000002 /* TCAAsyncImagePipelineTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -90,6 +136,10 @@
 				TargetAttributes = {
 					34C77ED13090EDE900032705 = {
 						CreatedOnToolsVersion = 27.1;
+					};
+					44AA00013092000100000004 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = 34C77ED13090EDE900032705;
 					};
 				};
 			};
@@ -111,12 +161,18 @@
 			projectRoot = "";
 			targets = (
 				34C77ED13090EDE900032705 /* TCAAsyncImagePipeline */,
+				44AA00013092000100000004 /* TCAAsyncImagePipelineTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		34C77ED03090EDE900032705 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		44AA00013092000100000006 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -129,7 +185,20 @@
 			files = (
 			);
 		};
+		44AA00013092000100000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		44AA00013092000100000009 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 34C77ED13090EDE900032705 /* TCAAsyncImagePipeline */;
+			targetProxy = 44AA00013092000100000008 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		34C77EDB3090EDEA00032705 /* Debug configuration for PBXProject "TCAAsyncImagePipeline" */ = {
@@ -317,6 +386,57 @@
 			};
 			name = Release;
 		};
+		44AA0001309200010000000A /* Debug configuration for PBXNativeTarget "TCAAsyncImagePipelineTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q7Q64FDMLV;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mauroolivo.TCAAsyncImagePipelineTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TCAAsyncImagePipeline.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TCAAsyncImagePipeline";
+			};
+			name = Debug;
+		};
+		44AA0001309200010000000B /* Release configuration for PBXNativeTarget "TCAAsyncImagePipelineTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q7Q64FDMLV;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mauroolivo.TCAAsyncImagePipelineTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TCAAsyncImagePipeline.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TCAAsyncImagePipeline";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -333,6 +453,14 @@
 			buildConfigurations = (
 				34C77EDE3090EDEA00032705 /* Debug configuration for PBXNativeTarget "TCAAsyncImagePipeline" */,
 				34C77EDF3090EDEA00032705 /* Release configuration for PBXNativeTarget "TCAAsyncImagePipeline" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		44AA0001309200010000000C /* Build configuration list for PBXNativeTarget "TCAAsyncImagePipelineTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44AA0001309200010000000A /* Debug configuration for PBXNativeTarget "TCAAsyncImagePipelineTests" */,
+				44AA0001309200010000000B /* Release configuration for PBXNativeTarget "TCAAsyncImagePipelineTests" */,
 			);
 			defaultConfigurationName = Release;
 		};
